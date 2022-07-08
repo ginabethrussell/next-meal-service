@@ -1,4 +1,5 @@
 const express = require("express");
+const helmet = require("helmet");
 
 const server = express();
 
@@ -25,7 +26,7 @@ function auth(req, res, next) {
     res.status(403).send("Not authorized!");
   }
 }
-
+server.use(helmet());
 server.use(express.json());
 server.use(logServerStatus);
 server.use(logger);
