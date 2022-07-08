@@ -17,6 +17,9 @@
   "bugs": {
     "url": "https://github.com/ginabethrussell/next-meal-service/issues"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "homepage": "https://github.com/ginabethrussell/next-meal-service#readme",
   "dependencies": {
     "dotenv": "^16.0.1",
