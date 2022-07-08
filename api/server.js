@@ -8,11 +8,11 @@ const server = express();
 server.use(helmet());
 server.use(express.json());
 
-server.get("/", (req, res) => {
+server.get("/api", (req, res) => {
   res.status(200).send("Welcome to the Next Meal Service");
 });
 
-server.get("/foods", (req, res) => {
+server.get("/api/foods", (req, res) => {
   Foods.find()
     .then((foods) => {
       res.status(200).json(foods);
@@ -23,10 +23,11 @@ server.get("/foods", (req, res) => {
     });
 });
 
-server.put("/foods/:id", (req, res) => {
+server.put("/api/foods/:id", (req, res) => {
   const { id } = req.params;
-  Foods.updateFoodById(id)
+  Foods.updateFoodById(id, req.body)
     .then((food) => {
+      console.log(food);
       res.status(200).json(food);
     })
     .catch((error) => {
@@ -37,7 +38,7 @@ server.put("/foods/:id", (req, res) => {
     });
 });
 
-server.delete("/foods/:id", (req, res) => {
+server.delete("/api/foods/:id", (req, res) => {
   const { id } = req.params;
   Foods.deleteFoodById(id)
     .then((food) => {
@@ -51,9 +52,9 @@ server.delete("/foods/:id", (req, res) => {
     });
 });
 
-server.get("/foods/:id", (req, res) => {
+server.get("/api/foods/:id", (req, res) => {
   const { id } = req.params;
-  Foods.findFoodById(id)
+  Foods.findById(id)
     .then((food) => {
       res.status(200).json(food);
     })
@@ -63,7 +64,24 @@ server.get("/foods/:id", (req, res) => {
     });
 });
 
-server.post("/foods/add", (req, res) => {
+server.get("/api/foods/:name", (req, res) => {
+  const { name } = req.params;
+  console.log(name);
+  Foods.findByName(name)
+    .then((food) => {
+      console.log("food", food);
+      res.status(200).json(food);
+    })
+    .catch((error) => {
+      console.error("\nERROR", error);
+      res
+        .status(401)
+        .json({ error: `Cannot find the food with the name ${name}` });
+    });
+});
+
+server.post("/api/foods", (req, res) => {
+  console.log(req.body);
   Foods.add(req.body)
     .then((food) => {
       res.status(201).json(food);
