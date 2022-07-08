@@ -20,7 +20,7 @@ function findById(id) {
 
 function findByName(name) {
   console.log(name);
-  return db("foods").where({ name }).first();
+  return db("foods").where({ name });
 }
 
 function updateFoodById(id, food) {

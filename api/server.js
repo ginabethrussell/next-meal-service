@@ -24,7 +24,6 @@ server.get("/api/foods", (req, res) => {
 
 // adds one food item and returns the item with id
 server.post("/api/foods", (req, res) => {
-  console.log(req.body);
   Foods.add(req.body)
     .then((food) => {
       res.status(201).json(food);
