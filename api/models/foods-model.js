@@ -1,4 +1,4 @@
-const db = require("./db.js");
+const db = require("../../data/db");
 
 module.exports = {
   find,
@@ -19,8 +19,7 @@ function findById(id) {
 }
 
 function findByName(name) {
-  console.log(name);
-  return db("foods").where({ name });
+  return db("foods").where("name", name).first();
 }
 
 function updateFoodById(id, food) {

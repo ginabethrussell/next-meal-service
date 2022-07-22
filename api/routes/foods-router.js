@@ -1,89 +1,59 @@
 // Endpoints for food resources
-const Foods = require("../../data/foods-model.js");
+const Foods = require("../models/foods-model");
 const router = require("express").Router();
+const {
+  handleErrors,
+  checkFoodBody,
+  checkFoodId,
+  checkFoodName,
+} = require("../middleware/foods-middleware");
 
-// returns all food items
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
   Foods.find()
     .then((foods) => {
       res.status(200).json(foods);
     })
-    .catch((error) => {
-      console.error("\nERROR", error);
-      res.status(500).json({ error: "Cannot retrieve the foods" });
-    });
+    .catch(next);
 });
 
-// adds one food item and returns the item with id
-router.post("/", (req, res) => {
+router.post("/", checkFoodBody, (req, res, next) => {
   Foods.add(req.body)
     .then((food) => {
       res.status(201).json(food);
     })
-    .catch((error) => {
-      console.error("\nERROR", error);
-      res.status(500).json({ error: `Cannot add the food ${req.body.name}` });
-    });
+    .catch(next);
 });
 
-// updates one food item by id
-// returns the number of rows modified
-router.put("/:id", (req, res) => {
-  const { id } = req.params;
-  Foods.updateFoodById(id, req.body)
-    .then((food) => {
-      res.status(200).json(food);
+router.put("/:id", checkFoodId, checkFoodBody, (req, res, next) => {
+  Foods.updateFoodById(req.params.id, req.body)
+    .then(() => {
+      Foods.findById(req.params.id)
+        .then((food) => {
+          res.status(200).json(food);
+        })
+        .catch(next);
     })
-    .catch((error) => {
-      console.error("\nERROR", error);
+    .catch(next);
+});
+
+router.delete("/:id", checkFoodId, (req, res, next) => {
+  Foods.deleteFoodById(req.params.id)
+    .then(() => {
       res
-        .status(401)
-        .json({ error: `Cannot update the food with the id ${id}` });
-    });
+        .status(200)
+        .json({ message: "Food has been deleted", food: req.food });
+    })
+    .catch(next);
 });
 
-// deletes one food item by id
-// returns number of rows modified
-router.delete("/:id", (req, res) => {
-  const { id } = req.params;
-  Foods.deleteFoodById(id)
-    .then((food) => {
-      res.status(200).json(food);
-    })
-    .catch((error) => {
-      console.error("\nERROR", error);
-      res
-        .status(401)
-        .json({ error: `Cannot delete the food with the id ${id}` });
-    });
+router.get("/:id", checkFoodId, (req, res, next) => {
+  res.status(200).json(req.food);
 });
 
-// returns one food by id
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  Foods.findById(id)
-    .then((food) => {
-      res.status(200).json(food);
-    })
-    .catch((error) => {
-      console.error("\nERROR", error);
-      res.status(401).json({ error: `Cannot find the food with the id ${id}` });
-    });
+router.get("/name/:name", checkFoodName, (req, res, next) => {
+  res.status(200).json(req.food);
 });
 
-// returns one food by name
-router.get("/name/:name", (req, res) => {
-  const { name } = req.params;
-  Foods.findByName(name)
-    .then((food) => {
-      res.status(200).json(food);
-    })
-    .catch((error) => {
-      console.error("\nERROR", error);
-      res
-        .status(401)
-        .json({ error: `Cannot find the food with the name ${name}` });
-    });
-});
+router.use((err, req, res, next) => handleErrors(err, req, res, next));
 
 module.exports = router;
